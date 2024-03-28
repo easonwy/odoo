@@ -46,10 +46,10 @@ def _create_accounting_data(env):
     return stock_input_account, stock_output_account, stock_valuation_account, expense_account, stock_journal
 
 
-class TestStockValuation(TransactionCase):
+class TestStockValuationBase(TransactionCase):
     @classmethod
     def setUpClass(cls):
-        super(TestStockValuation, cls).setUpClass()
+        super().setUpClass()
         cls.env.ref('base.EUR').active = True
         cls.stock_location = cls.env.ref('stock.stock_location_stock')
         cls.customer_location = cls.env.ref('stock.stock_location_customers')
@@ -146,6 +146,7 @@ class TestStockValuation(TransactionCase):
         out_move._action_done()
         return out_move.with_context(svl=True)
 
+class TestStockValuation(TestStockValuationBase):
     def test_realtime(self):
         """ Stock moves update stock value with product x cost price,
         price change updates the stock value based on current stock level.
@@ -4047,3 +4048,25 @@ class TestStockValuation(TransactionCase):
 
         with self.assertRaises(UserError):
             revaluation.action_validate_revaluation()
+
+    def test_manual_revaluation_statement(self):
+        self.product1.categ_id.property_cost_method = 'fifo'
+        self.product1.categ_id.property_valuation = 'real_time'
+
+        self._make_in_move(self.product1, 1, unit_cost=15)
+
+        revaluation_form = Form(self.env['stock.valuation.layer.revaluation'].with_context({
+            'default_product_id': self.product1.id,
+            'default_company_id': self.env.company.id,
+        }))
+        revaluation_form.added_value = 10.0
+        revaluation_form.account_id = self.stock_valuation_account
+        revaluation = revaluation_form.save()
+        revaluation.action_validate_revaluation()
+
+        account_move = self.env['stock.valuation.layer'].search([
+            ('product_id', '=', self.product1.id),
+            ('stock_move_id', '=', False),
+        ]).account_move_id
+
+        self.assertIn('OdooBot changed stock valuation from  15.0 to 25.0 -', account_move.line_ids[0].name)

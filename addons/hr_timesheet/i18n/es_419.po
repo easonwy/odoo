@@ -1167,7 +1167,7 @@ msgstr ""
 #. module: hr_timesheet
 #: model:ir.model.fields,help:hr_timesheet.field_report_project_task_user__total_hours_spent
 msgid "Time spent on this task, including its sub-tasks."
-msgstr "Tiempo utilizado en esta tarea, incluyendo las subtareas."
+msgstr "Tiempo utilizado en esta tarea y sus subtareas."
 
 #. module: hr_timesheet
 #: model_terms:ir.ui.view,arch_db:hr_timesheet.res_config_settings_view_form
@@ -1458,10 +1458,10 @@ msgid ""
 msgstr ""
 "Utilice estas palabras clave en el título para establecer nuevas tareas:\n"
 "\n"
-"        30h asignar 30 horas a la tarea\n"
-"        #etiquetas asignar etiquetas a la tarea\n"
-"        @usuario asignar la tarea a un usuario\n"
-"        ! asignar prioridad alta a la tarea\n"
+"        30h asigna 30 horas a la tarea\n"
+"        #etiquetas asigna etiquetas a la tarea\n"
+"        @usuario asigna la tarea a un usuario\n"
+"        ! asigna mayor prioridad a la tarea\n"
 "\n"
 "        Asegúrese de utilizar el formato y orden correcto. Por ejemplo: Mejorar la pantalla de configuración 5h #función #v16 @Mitchell !"
 

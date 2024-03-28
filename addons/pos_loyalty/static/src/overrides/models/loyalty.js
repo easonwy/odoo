@@ -25,13 +25,19 @@ export class PosLoyaltyCard {
      * @param {number} program_id id of loyalty.program
      * @param {number} partner_id id of res.partner
      * @param {number} balance points on the coupon, not counting the order's changes
+     * @param {string} expiration_date
      */
-    constructor(code, id, program_id, partner_id, balance) {
+    constructor(code, id, program_id, partner_id, balance, expiration_date = false) {
         this.code = code;
         this.id = id || nextId--;
         this.program_id = program_id;
         this.partner_id = partner_id;
         this.balance = balance;
+        this.expiration_date = expiration_date && new Date(expiration_date);
+    }
+
+    isExpired() {
+        return this.expiration_date && this.expiration_date < new Date();
     }
 }
 
@@ -974,15 +980,17 @@ patch(Order.prototype, {
                     continue;
                 }
                 let unclaimedQty;
-                if (reward.reward_type === "product" && !reward.multi_product) {
-                    const product = this.pos.db.get_product_by_id(reward.reward_product_ids[0]);
-                    unclaimedQty = this._computeUnclaimedFreeProductQty(
-                        reward,
-                        couponProgram.coupon_id,
-                        product,
-                        points
-                    );
-                    if (unclaimedQty <= 0) {
+                if (reward.reward_type === "product") {
+                    if (!reward.multi_product) {
+                        const product = this.pos.db.get_product_by_id(reward.reward_product_ids[0]);
+                        unclaimedQty = this._computeUnclaimedFreeProductQty(
+                            reward,
+                            couponProgram.coupon_id,
+                            product,
+                            points
+                        );
+                    }
+                    if (!unclaimedQty || unclaimedQty <= 0) {
                         continue;
                     }
                 }
@@ -1346,8 +1354,9 @@ patch(Order.prototype, {
         for (const line of this.get_orderlines()) {
             if (line.get_product().id === product.id) {
                 available += line.get_quantity();
-            } else if (line.reward_product_id === product.id) {
+            } else if (reward.reward_product_ids.includes(line.reward_product_id)) {
                 if (line.reward_id == reward.id) {
+                    remainingPoints += line.points_cost;
                     claimed += line.get_quantity();
                 } else {
                     shouldCorrectRemainingPoints = true;
@@ -1356,7 +1365,7 @@ patch(Order.prototype, {
         }
         let freeQty;
         if (reward.program_id.trigger == "auto") {
-            if (this._isRewardProductPartOfRules(reward, product)) {
+            if (this._isRewardProductPartOfRules(reward, product) && reward.program_id.applies_on !== 'future') {
                 // OPTIMIZATION: Pre-calculate the factors for each reward-product combination during the loading.
                 // For points not based on quantity, need to normalize the points to compute free quantity.
                 const appliedRulesIds = this.couponPointChanges[coupon_id].appliedRules;
@@ -1413,7 +1422,7 @@ patch(Order.prototype, {
     },
     _computePotentialFreeProductQty(reward, product, remainingPoints) {
         if (reward.program_id.trigger == "auto") {
-            if (this._isRewardProductPartOfRules(reward, product)) {
+            if (this._isRewardProductPartOfRules(reward, product) && reward.program_id.applies_on !== 'future') {
                 const line = this.get_orderlines().find(
                     (line) => line.reward_product_id === product.id
                 );
@@ -1547,7 +1556,8 @@ patch(Order.prototype, {
                     payload.coupon_id,
                     payload.program_id,
                     payload.partner_id,
-                    payload.points
+                    payload.points,
+                    payload.expiration_date,
                 );
                 this.pos.couponCache[coupon.id] = coupon;
                 this.codeActivatedCoupons.push(coupon);

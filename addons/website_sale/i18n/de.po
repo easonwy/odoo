@@ -1033,17 +1033,8 @@ msgstr "Kann veröffentlichen"
 #. odoo-python
 #: code:addons/website_sale/controllers/main.py:0
 #, python-format
-msgid "Can not resequence a video at first position."
-msgstr "An der ersten Stelle kann ein Video nicht neu geordnet werden."
-
-#. module: website_sale
-#. odoo-python
-#: code:addons/website_sale/controllers/main.py:0
-#, python-format
-msgid "Can not resequence embedded image/video with a non compatible image."
-msgstr ""
-"Das eingebettete Bild/Video kann nicht mit einem nicht kompatiblen Bild "
-"resequenziert werden."
+msgid "You can't use a video as the product's main image."
+msgstr "Sie können kein Video als das Hauptbild des Produkts verwenden"
 
 #. module: website_sale
 #: model_terms:ir.ui.view,arch_db:website_sale.snippet_options
@@ -2271,6 +2262,13 @@ msgid ""
 msgstr ""
 "Es scheint, dass es bereits eine Transaktion für Ihre Bestellung gibt, Sie "
 "können die Liefermethode nicht mehr ändern"
+
+#. module: website_sale
+#. odoo-javascript
+#: code:addons/website_sale/static/src/js/website_sale_utils.js:0
+#, python-format
+msgid "Item(s) added to your cart"
+msgstr "Artikel in den Warenkorb gelegt"
 
 #. module: website_sale
 #: model:ir.model,name:website_sale.model_account_move
@@ -4368,10 +4366,13 @@ msgid "Visitor Product Views History"
 msgstr "Historie der Produktansichten von Besuchern"
 
 #. module: website_sale
+#. odoo-javascript
+#: code:addons/website_sale/static/src/js/website_sale_utils.js:0
 #: model:ir.model.fields,field_description:website_sale.field_sale_order__shop_warning
 #: model:ir.model.fields,field_description:website_sale.field_sale_order_line__shop_warning
 #: model_terms:ir.ui.view,arch_db:website_sale.cart_lines
 #: model_terms:ir.ui.view,arch_db:website_sale.checkout_layout
+#, python-format
 msgid "Warning"
 msgstr "Warnung"
 
@@ -4699,6 +4700,11 @@ msgstr "E-Commerce-Verkäufe"
 #: model_terms:ir.ui.view,arch_db:website_sale.product_template_form_view
 msgid "eCommerce Shop"
 msgstr "E-Commerce-Shop"
+
+#. module: website_sale
+#: model_terms:ir.ui.view,arch_db:website_sale.header_cart_link
+msgid "eCommerce cart"
+msgstr "E-Commerce-Warenkorb"
 
 #. module: website_sale
 #: model:ir.actions.server,name:website_sale.ir_cron_send_availability_email_ir_actions_server

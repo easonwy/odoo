@@ -68,6 +68,7 @@ class Project(models.Model):
             task_counts_per_project_id[project.id]['closed_task_count' if state in CLOSED_STATES else 'open_task_count'] += count
         for project in self:
             open_task_count, closed_task_count = task_counts_per_project_id[project.id].values()
+            project.open_task_count = open_task_count
             project.closed_task_count = closed_task_count
             project.task_count = open_task_count + closed_task_count
 
@@ -133,6 +134,8 @@ class Project(models.Model):
         'resource.calendar', string='Working Time', compute='_compute_resource_calendar_id')
     type_ids = fields.Many2many('project.task.type', 'project_task_type_rel', 'project_id', 'type_id', string='Tasks Stages')
     task_count = fields.Integer(compute='_compute_task_count', string="Task Count")
+    open_task_count = fields.Integer(compute='_compute_task_count', string="Open Task Count")
+    # [XBO] TODO: remove me in master
     closed_task_count = fields.Integer(compute='_compute_task_count', string="Closed Task Count")
     task_ids = fields.One2many('project.task', 'project_id', string='Tasks',
                                domain=lambda self: [('state', 'in', self.env['project.task'].OPEN_STATES)])
@@ -890,27 +893,27 @@ class Project(models.Model):
     @api.model
     def _create_analytic_account_from_values(self, values):
         company = self.env['res.company'].browse(values.get('company_id', False))
-        project_plan, _other_plans = self.env['account.analytic.plan']._get_all_plans()
+        project_plan_id = int(self.env['ir.config_parameter'].sudo().get_param('analytic.analytic_plan_projects'))
+
+        if not project_plan_id:
+            project_plan, _other_plans = self.env['account.analytic.plan']._get_all_plans()
+            project_plan_id = project_plan.id
+
         analytic_account = self.env['account.analytic.account'].create({
             'name': values.get('name', _('Unknown Analytic Account')),
             'company_id': company.id,
             'partner_id': values.get('partner_id'),
-            'plan_id': project_plan.id,
+            'plan_id': project_plan_id,
         })
         return analytic_account
 
     def _create_analytic_account(self):
         for project in self:
-            company_id = project.company_id.id
-            project_plan, _other_plans = self.env['account.analytic.plan']._get_all_plans()
-            analytic_account = self.env['account.analytic.account'].create({
+            project.analytic_account_id = self._create_analytic_account_from_values({
+                'company_id': project.company_id.id,
                 'name': project.name,
-                'company_id': company_id,
-                'partner_id': project.partner_id.id,
-                'plan_id': project_plan.id,
-                'active': True,
+                'partner_id': project.partner_id.id
             })
-            project.write({'analytic_account_id': analytic_account.id})
 
     def _get_projects_to_make_billable_domain(self):
         return [('partner_id', '!=', False)]
