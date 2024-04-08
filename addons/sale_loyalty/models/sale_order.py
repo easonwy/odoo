@@ -881,6 +881,9 @@ class SaleOrder(models.Model):
             rule_points = []
             program_result = result.setdefault(program, dict())
             for rule in program.rule_ids:
+                # prevent bottomless ewallet spending
+                if program.program_type == 'ewallet' and not program.trigger_product_ids:
+                    break
                 if rule.mode == 'with_code' and rule not in self.code_enabled_rule_ids:
                     continue
                 code_matched = True
@@ -992,7 +995,7 @@ class SaleOrder(models.Model):
         if not program.filtered_domain(self._get_program_domain()):
             return {'error': _('The program is not available for this order.')}
         elif program in self._get_applied_programs():
-            return {'error': _('This program is already applied to this order.')}
+            return {'error': _('This program is already applied to this order.'), 'already_applied': True}
         # Check for applicability from the program's triggers/rules.
         # This step should also compute the amount of points to give for that program on that order.
         status = self._program_check_compute_points(program)[program]
@@ -1058,7 +1061,7 @@ class SaleOrder(models.Model):
             if 'error' in apply_result and (not program.is_nominative or (program.is_nominative and not coupon)):
                 if rule:
                     self.code_enabled_rule_ids -= rule
-                if coupon:
+                if coupon and not apply_result.get('already_applied', False):
                     self.applied_coupon_ids -= coupon
                 return apply_result
             coupon = apply_result.get('coupon', self.env['loyalty.card'])
