@@ -1,0 +1,3 @@
+[submodule "extra_addons/odoo-rest-api"]
+	path = extra_addons/odoo-rest-api
+	url = https://github.com/easonwy/odoo-rest-api.git
