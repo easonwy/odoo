@@ -1,3 +1,6 @@
 [submodule "extra_addons/odoo-rest-api"]
 	path = extra_addons/odoo-rest-api
 	url = https://github.com/easonwy/odoo-rest-api.git
+[submodule "extra_addons/odoo-tapas-product"]
+	path = extra_addons/odoo-tapas-product
+	url = https://github.com/Tapas-falcon/odoo-tapas-product.git
