@@ -184,7 +184,7 @@ export class Product extends PosModel {
         if (this.combo_ids.length) {
             const { confirmed, payload } = await this.env.services.popup.add(
                 ComboConfiguratorPopup,
-                { product: this, keepBehind: true }
+                { product: this }
             );
             if (!confirmed) {
                 return;
@@ -2142,6 +2142,11 @@ export class Order extends PosModel {
             // Make sure the combo parent is selected.
             this.select_orderline(line);
         }
+        this.hasJustAddedProduct = true;
+        clearTimeout(this.productReminderTimeout);
+        this.productReminderTimeout = setTimeout(() => {
+            this.hasJustAddedProduct = false;
+        }, 3000);
     }
 
     compute_child_lines(comboParentProduct, comboLines, pricelist) {
