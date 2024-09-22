@@ -487,8 +487,8 @@ class Channel(models.Model):
         message_type = msg_vals.get('message_type', 'comment') if msg_vals else message.message_type
         pids = msg_vals.get('partner_ids', []) if msg_vals else message.partner_ids.ids
 
-        # notify only user input (comment or incoming / outgoing emails)
-        if message_type not in ('comment', 'email', 'email_outgoing'):
+        # notify only user input (comment, whatsapp messages or incoming / outgoing emails)
+        if message_type not in ('comment', 'email', 'email_outgoing', 'whatsapp_message'):
             return []
 
         recipients_data = []
@@ -1051,6 +1051,10 @@ class Channel(models.Model):
         })
         member_basic_info = {
             "id": member.id,
+            "persona": {
+                "id": member.partner_id.id if member.partner_id else member.guest_id.id,
+                "type": "partner" if member.partner_id else "guest",
+            },
             "lastSeenMessage": {"id": last_message.id} if last_message else False,
         }
         member_self_info = {

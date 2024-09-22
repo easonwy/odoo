@@ -34,14 +34,14 @@ export class ReceiptScreen extends Component {
             // to send in preparation it is automatically sent
             if (this.pos.orderPreparationCategories.size) {
                 try {
-                    this.sendToPreparationDisplay();
+                    this.sendOrderToPreparationTools();
                 } catch (error) {
                     Promise.reject(error);
                 }
             }
         });
     }
-    async sendToPreparationDisplay() {
+    async sendOrderToPreparationTools() {
         await this.pos.sendOrderInPreparationUpdateLastChange(this.currentOrder);
     }
     _addNewOrder() {
@@ -104,6 +104,7 @@ export class ReceiptScreen extends Component {
     orderDone() {
         this.pos.removeOrder(this.currentOrder);
         this._addNewOrder();
+        this.pos.resetProductScreenSearch();
         const { name, props } = this.nextScreen;
         this.pos.showScreen(name, props);
     }
