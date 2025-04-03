@@ -9,13 +9,13 @@ from werkzeug.urls import url_join
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.http import request
-from odoo.tools import json
+from odoo.tools.safe_eval import json
 
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
-    l10n_ro_edi_client_id = fields.Char(string='Client ID')
+    l10n_ro_edi_client_id = fields.Char(string='eFactura Client ID')
     l10n_ro_edi_client_secret = fields.Char(string='Client Secret')
     l10n_ro_edi_access_token = fields.Char(string='Access Token')
     l10n_ro_edi_refresh_token = fields.Char(string='Refresh Token')

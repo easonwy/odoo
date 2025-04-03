@@ -4153,9 +4153,8 @@ QUnit.module("Views", (hooks) => {
         const tbodySelectors = target.querySelectorAll("tbody .o_list_record_selector input");
         const theadSelector = target.querySelector("thead .o_list_record_selector input");
 
-        const getFooterTextArray = () => {
-            return [...target.querySelectorAll("tfoot td")].map((td) => td.innerText);
-        };
+        const getFooterTextArray = () =>
+            [...target.querySelectorAll("tfoot td")].map((td) => td.innerText);
 
         assert.deepEqual(getFooterTextArray(), ["", "", "32", "1.50"]);
 
@@ -6801,6 +6800,17 @@ QUnit.module("Views", (hooks) => {
                 if (args.method === "web_search_read") {
                     assert.strictEqual(args.kwargs.count_limit, expectedCountLimit);
                 }
+                if (args.method === "search_count") {
+                    assert.deepEqual(args.kwargs.context, {
+                        lang: "en",
+                        tz: "taht",
+                        uid: 7,
+                        xyz: "abc",
+                    });
+                }
+            },
+            context: {
+                xyz: "abc",
             },
         });
 
@@ -21003,5 +21013,21 @@ QUnit.module("Views", (hooks) => {
         await click(target.querySelector(".o_data_cell"));
 
         assert.containsOnce(target, ".o_form_view");
+    });
+
+    QUnit.test("hide pager in the list view with sample data", async (assert) => {
+        await makeView({
+            type: "list",
+            arch: `
+                <tree sample="1">
+                    <field name="date"/>
+                </tree>`,
+            serverData,
+            domain: Domain.FALSE.toList(),
+            resModel: "foo",
+        });
+
+        assert.hasClass(target.querySelector(".o_content"), "o_view_sample_data");
+        assert.isNotVisible(target.querySelector(".o_cp_pager"));
     });
 });
