@@ -1598,7 +1598,7 @@ class Request:
                         profile_session=self.session.profile_session,
                         collectors=self.session.profile_collectors,
                         params=self.session.profile_params,
-                    )
+                    )._get_cm_proxy()
                 except Exception:
                     _logger.exception("Failure during Profiler creation")
                     self.session.profile_session = None
@@ -2053,7 +2053,7 @@ class JsonRPCDispatcher(Dispatcher):
         response = {'jsonrpc': '2.0', 'id': self.request_id}
         if error is not None:
             response['error'] = error
-        else:
+        if result is not None:
             response['result'] = result
 
         return self.request.make_json_response(response)
