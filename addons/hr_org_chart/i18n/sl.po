@@ -159,7 +159,7 @@ msgstr "Preusmeri"
 #: code:addons/hr_org_chart/static/src/fields/hr_org_chart.xml:0
 #, python-format
 msgid "See All"
-msgstr ""
+msgstr "Prikaži vse"
 
 #. module: hr_org_chart
 #: model:ir.model.fields,field_description:hr_org_chart.field_hr_employee__subordinate_ids
@@ -204,4 +204,4 @@ msgstr ""
 #: code:addons/hr_org_chart/static/src/views/hr_employee_hierarchy/hr_employee_hierarchy_card.xml:0
 #, python-format
 msgid "people"
-msgstr ""
+msgstr "ljudje"
