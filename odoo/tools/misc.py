@@ -9,6 +9,7 @@ import cProfile
 import collections
 import contextlib
 import datetime
+import functools
 import hmac as hmac_lib
 import hashlib
 import io
@@ -855,8 +856,8 @@ class lower_logging(logging.Handler):
         if record.levelno > self.max_level:
             record.levelname = f'_{record.levelname}'
             record.levelno = self.to_level
+            record.munge_traceback = True
             self.had_error_log = True
-            record.args = tuple(arg.replace('Traceback (most recent call last):', '_Traceback_ (most recent call last):') if isinstance(arg, str) else arg for arg in record.args)
 
         if logging.getLogger(record.name).isEnabledFor(record.levelno):
             for handler in self.old_handlers:
@@ -1371,6 +1372,8 @@ def get_lang(env, lang_code=False):
         lang = env.user.company_id.partner_id.lang
     return env['res.lang']._lang_get(lang)
 
+
+@functools.lru_cache
 def babel_locale_parse(lang_code):
     try:
         return babel.Locale.parse(lang_code)

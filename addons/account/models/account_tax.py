@@ -896,6 +896,7 @@ class AccountTax(models.Model):
         taxes_vals = []
         i = 0
         cumulated_tax_included_amount = 0
+        fname = 'invoice_label' if self._context.get('is_invoice', False) else 'name'
         for tax in taxes:
             price_include = self._context.get('force_price_include', tax.price_include)
 
@@ -924,7 +925,7 @@ class AccountTax(models.Model):
             tax_amount = float_round(tax_amount, precision_rounding=prec)
             factorized_tax_amount = float_round(tax_amount * sum_repartition_factor, precision_rounding=prec)
 
-            if price_include and total_included_checkpoints.get(i) is None:
+            if price_include and total_included_checkpoints.get(i) is None and not tax.include_base_amount:
                 cumulated_tax_included_amount += factorized_tax_amount
 
             # If the tax affects the base of subsequent taxes, its tax move lines must
@@ -968,7 +969,7 @@ class AccountTax(models.Model):
 
                 taxes_vals.append({
                     'id': tax.id,
-                    'name': partner and tax.with_context(lang=partner.lang).name or tax.name,
+                    'name': partner and tax.with_context(lang=partner.lang)[fname] or tax.name,
                     'amount': sign * line_amount,
                     'base': float_round(sign * tax_base_amount, precision_rounding=prec),
                     'sequence': tax.sequence,

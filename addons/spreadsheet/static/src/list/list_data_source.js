@@ -196,7 +196,7 @@ export class ListDataSource extends OdooViewsDataSource {
             case "json":
                 throw new Error(sprintf(_t('Fields of type "%s" are not supported'), "json"));
             default:
-                return fieldName in record ? record[fieldName] : "";
+                return record[fieldName] || "";
         }
     }
 
@@ -253,5 +253,17 @@ export class ListDataSource extends OdooViewsDataSource {
                 resolve();
             });
         });
+    }
+
+    get source() {
+        this._assertMetadataIsLoaded();
+        const data = this._metaData;
+        return {
+            resModel: data.resModel,
+            type: "list",
+            fields: data.columns,
+            groupby: undefined,
+            domain: this._searchParams.domain,
+        };
     }
 }

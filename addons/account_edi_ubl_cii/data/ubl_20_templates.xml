@@ -248,6 +248,8 @@
             <cbc:ID t-out="vals.get('delivery_id')"/>
             <cbc:ActualDeliveryDate t-out="vals.get('actual_delivery_date')"/>
             <cac:DeliveryLocation>
+                <cbc:ID t-att-schemeID="vals.get('delivery_location_vals', {}).get('delivery_location_scheme_id')"
+                        t-out="vals.get('delivery_location_vals', {}).get('delivery_location_id')"/>
                 <cac:Address>
                     <t t-call="{{AddressType_template}}">
                         <t t-set="vals" t-value="vals.get('delivery_location_vals', {}).get('delivery_address_vals', {})"/>
@@ -255,11 +257,9 @@
                 </cac:Address>
             </cac:DeliveryLocation>
             <cac:DeliveryParty>
-                <cac:Party>
-                    <t t-call="{{PartyType_template}}">
-                        <t t-set="vals" t-value="vals.get('delivery_party_vals', {}).get('party_vals', {})"/>
-                    </t>
-                </cac:Party>
+                <cac:PartyName t-foreach="vals.get('delivery_party_vals', {}).get('party_name_vals')" t-as="party_vals">
+                    <cbc:Name t-out="party_vals.get('name')"/>
+                </cac:PartyName>
             </cac:DeliveryParty>
         </t>
     </template>
@@ -284,6 +284,9 @@
             <cbc:PrepaidAmount
                 t-att-currencyID="vals['currency'].name"
                 t-out="format_float(vals.get('prepaid_amount'), vals.get('currency_dp'))"/>
+            <cbc:PayableRoundingAmount
+                t-att-currencyID="vals['currency'].name"
+                t-out="format_float(vals.get('payable_rounding_amount'), vals.get('currency_dp'))"/>
             <cbc:PayableAmount
                 t-att-currencyID="vals['currency'].name"
                 t-out="format_float(vals.get('payable_amount'), vals.get('currency_dp'))"/>
@@ -330,6 +333,11 @@
                 <cac:SellersItemIdentification>
                     <cbc:ID t-out="item_vals.get('sellers_item_identification_vals', {}).get('id')"/>
                 </cac:SellersItemIdentification>
+                <cac:StandardItemIdentification>
+                    <t t-set="standard_item_identification_vals" t-value="item_vals.get('standard_item_identification_vals', {})"/>
+                    <cbc:ID t-att="standard_item_identification_vals.get('id_attrs')"
+                            t-out="standard_item_identification_vals.get('id')"/>
+                </cac:StandardItemIdentification>
                 <cac:CommodityClassification t-foreach="item_vals.get('commodity_classification_vals', [])" t-as="foreach_vals">
                     <cbc:ItemClassificationCode
                             t-att="foreach_vals.get('item_classification_attrs', {})"

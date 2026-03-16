@@ -107,7 +107,10 @@ class PaymentTransaction(models.Model):
         :return: None
         """
         super()._log_message_on_linked_documents(message)
-        author = self.env.user.partner_id if self.env.uid == SUPERUSER_ID else self.partner_id
+        if self.env.uid == SUPERUSER_ID or self.env.context.get('payment_backend_action'):
+            author = self.env.user.partner_id
+        else:
+            author = self.partner_id
         for order in self.sale_order_ids or self.source_transaction_id.sale_order_ids:
             order.message_post(body=message, author_id=author.id)
 
@@ -124,7 +127,7 @@ class PaymentTransaction(models.Model):
             # even if only a partial payment was made.
             self._invoice_sale_orders()
         super()._reconcile_after_done()
-        if auto_invoice:
+        if auto_invoice and not self.env.context.get('skip_sale_auto_invoice_send'):
             if (
                 str2bool(self.env['ir.config_parameter'].sudo().get_param('sale.async_emails'))
                 and (send_invoice_cron := self.env.ref('sale.send_invoice_cron', raise_if_not_found=False))
