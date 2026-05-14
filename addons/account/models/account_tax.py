@@ -97,7 +97,7 @@ class AccountTax(models.Model):
                "See '_search_name' and '_parse_name_search' for why this is not possible with 'filter_domain'.")
     type_tax_use = fields.Selection(TYPE_TAX_USE, string='Tax Type', required=True, default="sale", tracking=True,
         help="Determines where the tax is selectable. Note: 'None' means a tax can't be used by itself, however it can still be used in a group. 'adjustment' is used to perform tax adjustment.")
-    tax_scope = fields.Selection([('service', 'Services'), ('consu', 'Goods')], string="Tax Scope", help="Restrict the use of taxes to a type of product.")
+    tax_scope = fields.Selection([('service', 'Services'), ('consu', 'Goods')], string="Tax Scope")
     amount_type = fields.Selection(default='percent', string="Tax Computation", required=True, tracking=True,
         selection=[('group', 'Group of Taxes'), ('fixed', 'Fixed'), ('percent', 'Percentage of Price'), ('division', 'Percentage of Price Tax Included')],
         help="""
@@ -896,7 +896,6 @@ class AccountTax(models.Model):
         taxes_vals = []
         i = 0
         cumulated_tax_included_amount = 0
-        fname = 'invoice_label' if self._context.get('is_invoice', False) else 'name'
         for tax in taxes:
             price_include = self._context.get('force_price_include', tax.price_include)
 
@@ -969,7 +968,7 @@ class AccountTax(models.Model):
 
                 taxes_vals.append({
                     'id': tax.id,
-                    'name': partner and tax.with_context(lang=partner.lang)[fname] or tax.name,
+                    'name': partner and tax.with_context(lang=partner.lang).name or tax.name,
                     'amount': sign * line_amount,
                     'base': float_round(sign * tax_base_amount, precision_rounding=prec),
                     'sequence': tax.sequence,
